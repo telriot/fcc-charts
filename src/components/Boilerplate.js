@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react"
 import { select } from "d3"
-import useResizeObserver from "./useResizeObserver"
+import useResizeObserver from "../useResizeObserver"
 
 function BoilerPlate({ data }) {
   const svgRef = useRef()

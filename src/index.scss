@@ -15,7 +15,7 @@ code {
 .tooltip {
   position: absolute;
   padding: 0.75rem 1.25rem;
-  height: 2.5rem;
+  height: max-content;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
@@ -28,6 +28,13 @@ code {
   color: white;
   z-index: 1000;
 }
+.tooltip-scatter {
+  @extend .tooltip;
+  font-size: 0.925rem;
+}
+.tooltip-heat {
+  @extend .tooltip;
+}
 .bar {
   &:hover {
     fill: $color-pink;
@@ -36,4 +43,36 @@ code {
 
 p {
   margin: 0;
+}
+.wrapper {
+  margin-bottom: 2rem;
+  width: 80%;
+  height: 400px;
+  min-width: 450px;
+  position: relative;
+}
+
+.wrapper-bar {
+  @extend .wrapper;
+}
+.wrapper-heat {
+  @extend .wrapper;
+}
+.chart {
+  overflow: visible;
+  height: 100%;
+  width: 100%;
+  background-color: $color-azure;
+}
+.chart-scatter {
+  @extend .chart;
+}
+.chart-heat {
+  @extend .chart;
+  background-color: transparent;
+}
+.cell-heat {
+  &:hover {
+    fill: $color-azure;
+  }
 }

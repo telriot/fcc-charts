@@ -17,6 +17,7 @@ function BarChart() {
   const wrapperRef = useRef()
   const dimensions = useResizeObserver(wrapperRef)
   const { data } = fedData
+
   const convertToQuarter = (date) => {
     let month = date.slice(5, 7)
     let year = date.slice(0, 4)
@@ -43,7 +44,7 @@ function BarChart() {
       .domain(data.map((value, index) => index))
       .range([0, dimensions.width])
     const yScale = scaleLinear()
-      .domain([0, max(data, (quarter) => quarter[1])]) //check max fn
+      .domain([0, max(data, (quarter) => quarter[1])])
       .range([dimensions.height, 0])
     const colorScale = scaleLinear()
       .domain([
@@ -90,7 +91,6 @@ function BarChart() {
       .attr("x", (value, index) => xScale(index))
       .attr("y", -dimensions.height)
       .attr("width", xScale.bandwidth())
-
       .on("mouseenter", (value, index) => {
         wrapper
           .selectAll(".tooltip")
@@ -100,7 +100,7 @@ function BarChart() {
           .html(
             `<p>${convertToQuarter(value[0])}</p><p>$ ${value[1]} Billion</p>`
           )
-          .style("top", `${yScale(value[1]) + dimensions.height / 2 - 50}px`)
+          .style("top", `${yScale(value[1]) - 100}px`)
           .style("left", `${xScale(index) + xScale.bandwidth() / 2}px`)
       })
       .on("mouseleave", () => wrapper.select(".tooltip").remove())
@@ -114,16 +114,7 @@ function BarChart() {
       <div>
         <h1>United States GDP</h1>
       </div>
-      <div
-        className="wrapper"
-        ref={wrapperRef}
-        style={{
-          marginBottom: "2rem",
-          width: "80%",
-          height: "400px",
-          minWidth: "450px",
-        }}
-      >
+      <div className="wrapper-bar" ref={wrapperRef}>
         <svg className={styles.barChart} ref={svgRef}>
           <g className="x-axis"></g>
           <g className="y-axis"></g>
