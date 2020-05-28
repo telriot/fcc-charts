@@ -35,6 +35,9 @@ code {
 .tooltip-heat {
   @extend .tooltip;
 }
+.tooltip-choro {
+  @extend .tooltip;
+}
 .bar {
   &:hover {
     fill: $color-pink;
@@ -58,6 +61,10 @@ p {
 .wrapper-heat {
   @extend .wrapper;
 }
+.wrapper-choro {
+  @extend .wrapper;
+  height: 800px;
+}
 .chart {
   overflow: visible;
   height: 100%;
@@ -75,4 +82,7 @@ p {
   &:hover {
     fill: $color-azure;
   }
+}
+.chart-choro {
+  @extend .chart;
 }
