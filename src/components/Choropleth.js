@@ -7,10 +7,12 @@ import countiesData from "../datasets/counties.json"
 import education from "../datasets/education.json"
 
 function Choropleth({ data }) {
+  const [width, setWidth] = useState(0)
+  const [wrapperPos, setWrapperPos] = useState({ x: 10, y: 0 })
   const svgRef = useRef()
   const wrapperRef = useRef()
-  const [wrapperPos, setWrapperPos] = useState({ x: 10, y: 0 })
 
+  const dimensions = useResizeObserver(wrapperRef)
   let wrapperPosition = useScrollPosition(
     ({ currPos }) => {
       setWrapperPos(currPos)
@@ -22,26 +24,34 @@ function Choropleth({ data }) {
     true
   )
 
-  const colors = [
-    "rgb(207, 246, 201)",
-    "rgb(115, 248, 63)",
-    "rgb(49, 170, 38)",
-    "rgb(0, 82, 4)",
-  ]
-  const dimensions = useResizeObserver(wrapperRef)
   const usCounties = feature(countiesData, countiesData.objects.counties)
   const usStates = mesh(
     countiesData,
     countiesData.objects.states,
     (a, b) => a !== b
   )
-  const [width, setWidth] = useState(800)
   const path = geoPath()
+
+  const colors = [
+    "rgb(220, 250, 220)",
+    "rgb(120, 250, 163)",
+    "rgb(50, 150, 38)",
+    "rgb(0, 50, 4)",
+  ]
+
   useEffect(() => {
     if (!dimensions) return
     const { height, width } = dimensions
-
     setWidth(width)
+    //SELECTORS
+    const svg = select(svgRef.current)
+    const wrapper = select(wrapperRef.current)
+    //STYLE VARIABLES
+    const legendWidth = parseInt(width / 3)
+    const legendHeight = parseInt(30 * height) / 800
+    const scaleRatio = width / 1050
+    const translateXRatio = (80 * width) / 1050
+    //SCALES
     const colorScale = scaleLinear()
       .domain([
         min(education, (education) => education.bachelorsOrHigher),
@@ -62,13 +72,13 @@ function Choropleth({ data }) {
         min(education, (education) => education.bachelorsOrHigher),
         max(education, (education) => education.bachelorsOrHigher),
       ])
-      .range([0, 300])
+      .range([0, legendWidth])
     const legendColorScale = scaleLinear()
       .domain([0, 100, 200, 300])
       .range(colors)
     const legendAxis = axisBottom(legendScale).tickSizeOuter([0])
-    const svg = select(svgRef.current)
-    const wrapper = select(wrapperRef.current)
+    //ELEMENTS
+    //Map
     svg
       .selectAll(".path-choro")
       .data(usCounties.features)
@@ -77,7 +87,10 @@ function Choropleth({ data }) {
       .attr("class", "path-choro")
       .style("stroke", "white")
       .style("stroke-width", ".3")
-      .style("transform", `scale(${width / 1000}, ${width / 1000})`)
+      .style(
+        "transform",
+        `scale(${scaleRatio}, ${scaleRatio}) translateX(${translateXRatio}px)`
+      )
       .attr("fill", (data) => {
         const target = education.filter((obj) => obj.fips === data.id) || 0
         return colorScale(target[0].bachelorsOrHigher)
@@ -96,31 +109,37 @@ function Choropleth({ data }) {
           .style("left", `${window.event.clientX - wrapperPos.x + 20}px`)
       })
       .on("mouseleave", () => wrapper.select(".tooltip-choro").remove())
-
-    svg.selectAll(".country-path").remove()
+    //State lines
+    svg.selectAll(".state-path").remove()
     svg
       .append("path")
       .data([usStates])
       .attr("fill", "none")
       .attr("stroke", "white")
-      .attr("class", "country-path")
+      .attr("class", "state-path")
       .attr("stroke-linejoin", "round")
       .attr("d", path)
-      .style("transform", `scale(${width / 1000}, ${width / 1000})`)
-
+      .style(
+        "transform",
+        `scale(${scaleRatio}, ${scaleRatio}) translateX(${translateXRatio}px)`
+      )
+    //Legend
     svg
       .select(".legend-choro")
-      .style("transform", `translate( ${width / 4}px,  ${height - 50}px)`)
+      .style(
+        "transform",
+        `translate( ${width / 2 - legendWidth / 2}px,  ${height - 30}px)`
+      )
       .call(legendAxis)
 
     svg
       .selectAll(".color-choro")
-      .data(Array(300))
+      .data(Array(legendWidth))
       .join("rect")
       .attr("class", "color-choro")
-      .attr("x", (data, index) => `${index + width / 4}px`)
-      .attr("y", `${height - 80}px`)
-      .attr("height", 30)
+      .attr("x", (data, index) => `${index - legendWidth / 2 + width / 2}px`)
+      .attr("y", `${height - 30 - legendHeight}px`)
+      .attr("height", legendHeight)
       .attr("width", 1)
       .attr("fill", (data, index) => legendColorScale(index))
   }, [data, dimensions, wrapperPos])
