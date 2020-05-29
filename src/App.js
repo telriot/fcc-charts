@@ -8,6 +8,9 @@ import Choropleth from "./components/Choropleth"
 function App() {
   return (
     <div className={styles.container}>
+      <BarChart />
+      <ScatterPlot />
+      <HeatMap />
       <Choropleth />
     </div>
   )

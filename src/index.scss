@@ -60,10 +60,10 @@ p {
 }
 .wrapper-heat {
   @extend .wrapper;
+  margin-bottom: 150px;
 }
 .wrapper-choro {
   @extend .wrapper;
-  height: 800px;
 }
 .chart {
   overflow: visible;

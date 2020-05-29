@@ -74,7 +74,7 @@ function HeatMap() {
     //AXES
     const xAxis = axisBottom(xTickScale)
     const yAxis = axisLeft(yScale).tickFormat((time) => parseMonths(time))
-    const legendAxis = axisBottom(legendScale)
+    const legendAxis = axisBottom(legendScale).tickSizeOuter([0])
     //SVGS
     svg
       .select(".x-axis")
