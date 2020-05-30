@@ -1,50 +1,74 @@
-import React, { useRef, useEffect } from "react"
-import {
-  select,
-  treemap,
-  hierarchy,
-  scaleBand,
-  min,
-  max,
-  scaleOrdinal,
-} from "d3"
+import React, { useRef, useEffect, useState } from "react"
+import { select, treemap, hierarchy, scaleOrdinal } from "d3"
 import useResizeObserver from "../hooks/useResizeObserver"
 import movieData from "../datasets/movie-data.json"
+import kickstarterData from "../datasets/kickstarter-funding-data.json"
+import data from "../datasets/video-game-sales-data.json"
+
+const dataObj = {
+  movies: movieData,
+  kickstarters: kickstarterData,
+  games: data,
+}
 
 function TreeMap() {
   const svgRef = useRef()
   const wrapperRef = useRef()
   const dimensions = useResizeObserver(wrapperRef)
+  const [options, setOptions] = useState("movies")
+  const [data, setData] = useState(movieData)
+  const datasets = [
+    { label: "Top Grossing Movies by Genre", value: "movies" },
+    { label: "Most funded Kickstarters by Category", value: "kickstarters" },
+    { label: "Most sold Video Games by Platform", value: "games" },
+  ]
 
+  const handleSelect = (e) => {
+    setOptions(e.target.value)
+    setData(dataObj[e.target.value])
+  }
   useEffect(() => {
     const svg = select(svgRef.current)
     const wrapper = select(wrapperRef.current)
     if (!dimensions) return
     const { width, height } = dimensions
-    const root = hierarchy(movieData).sum((d) => d.value)
-    treemap().size([width, height]).padding(2)(root)
+    const root = hierarchy(data).sum((d) => d.value)
+    treemap().size([width, height]).padding(1)(root)
 
     const colors = [
       "#ff595eff",
       "#ffca3aff",
       "#8ac926ff",
       "#1982c4ff",
-      "#6a4c93ff",
-      "#2e294e",
-      "#f18701",
-      "#0b445b",
-      "#612216",
-      "#24201f",
-      "#054d52",
+      "#d0f4de",
+      "#f3ca40",
+      "#e4c1f9",
+      "#ff69eb",
+      "#f15bb5ff",
+      "#5f0f40ff",
+      "#00bbf9ff",
+      "#00f5d4ff",
+      "#86bbbd",
+      "#fb8b24ff",
+      "#e36414ff",
+      "#dcb8cb",
+      "#c0c0c0",
+      "#d81159",
+      "#006ba6",
+      "#0ead69",
+      "#f4d35e",
+      "#d9dbbc",
+      "#86bbbd",
+      "#a6808c",
     ]
 
-    const legendKeys = movieData.children.map((children, index) => ({
+    const legendKeys = data.children.map((children, index) => ({
       children,
       index,
     }))
 
     const colorScale = scaleOrdinal()
-      .domain(movieData.children.map((children, index) => index))
+      .domain(data.children.map((child, index) => child.name))
       .range(colors)
 
     svg.selectAll("g").remove()
@@ -64,9 +88,11 @@ function TreeMap() {
               `<h5>${data.data.name}</h5><p>${data.data.category}</p><p>${data.data.value} $</p>`
           )
           .style("top", (d) => {
-            return window.event.pageY + height / 100 + "px"
+            return d.y1 - width / 50 + "px"
           })
-          .style("left", window.event.pageX - width / 10 + "px")
+          .style("left", (d) => {
+            return d.x1 - width / 50 + "px"
+          })
       })
       .on("mouseleave", () => wrapper.select(".tooltip-tree").remove())
 
@@ -76,14 +102,18 @@ function TreeMap() {
       .attr("height", (d) => d.y1 - d.y0)
       .attr("fill", (d) => {
         while (d.depth > 1) d = d.parent
-        const parent = d.parent.children
-        for (let i = 0; i < parent.length; i++) {
-          if (parent[i].data.name === d.data.name) return colorScale(i)
-        }
+        return colorScale(d.data.name)
       })
+    leaf
+      .append("clipPath")
+      .attr("id", (d) => d.data.value)
+      .append("rect")
+      .attr("width", (d) => d.x1 - d.x0)
+      .attr("height", (d) => d.y1 - d.y0)
 
     leaf
       .append("text")
+      .attr("clip-path", (d) => `url(#${d.data.value})`)
       .selectAll("tspan")
       .data((d) => d.data.name.split(/(?=[A-Z][a-z])|\s+/g))
       .join("tspan")
@@ -93,15 +123,16 @@ function TreeMap() {
         (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`
       )
       .text((d) => d)
-      .style("fill", "white")
-      .style("font-size", "10px")
+      .style("fill", "#222")
+      .style("font-size", "9px")
+
     svg
-      .selectAll(".legendDot-tree")
+      .selectAll(".legend-dot-tree")
       .data(legendKeys)
       .join("rect")
-      .attr("class", "legendDot-tree")
-      .style("fill", (d) => colorScale(d.index))
-      .attr("x", (data, index) => 150 + (index % 3) * 120)
+      .attr("class", "legend-dot-tree")
+      .style("fill", (d) => colorScale(d.children.name))
+      .attr("x", (data, index) => 20 + (index % 3) * 130)
       .attr(
         "y",
         (data, index) => dimensions.height + 30 + Math.floor(index / 3) * 35
@@ -109,28 +140,38 @@ function TreeMap() {
       .attr("width", 20)
       .attr("height", 20)
     svg
-      .selectAll(".legendText-tree")
+      .selectAll(".legend-text-tree")
       .data(legendKeys)
       .join("text")
       .text((data, index) => data.children.name)
-      .attr("class", "legendText-tree")
-      .attr("x", (data, index) => 180 + (index % 3) * 120)
+      .attr("class", "legend-text-tree")
+      .attr("x", (data, index) => 50 + (index % 3) * 130)
       .attr(
         "y",
         (data, index) => dimensions.height + 46 + Math.floor(index / 3) * 35
       )
-  }, [dimensions])
+  }, [dimensions, data])
 
   return (
-    <div
-      className="wrapper-tree"
-      ref={wrapperRef}
-      style={{ marginBottom: "20rem" }}
-    >
-      <svg className="chart-tree" ref={svgRef}>
-        <g className="legend-tree"></g>
-      </svg>
-    </div>
+    <React.Fragment>
+      <h1>Treemap Charted Data</h1>
+      <select className="select-tree" onChange={handleSelect} value={options}>
+        {datasets.map((dataset) => (
+          <option key={dataset.label} value={dataset.value}>
+            {dataset.label}
+          </option>
+        ))}
+      </select>
+      <div
+        className="wrapper-tree"
+        ref={wrapperRef}
+        style={{ marginBottom: "20rem" }}
+      >
+        <svg className="chart-tree" ref={svgRef}>
+          <g className="legend-tree"></g>
+        </svg>
+      </div>
+    </React.Fragment>
   )
 }
 

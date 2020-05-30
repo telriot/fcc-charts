@@ -9,6 +9,10 @@ import TreeMap from "./components/TreeMap"
 function App() {
   return (
     <div className={styles.container}>
+      <BarChart />
+      <ScatterPlot />
+      <HeatMap />
+      <Choropleth />
       <TreeMap />
     </div>
   )
