@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react"
-import { select, treemap, hierarchy, scaleOrdinal } from "d3"
+import { select, treemap, hierarchy, scaleOrdinal, mouse } from "d3"
 import useResizeObserver from "../hooks/useResizeObserver"
 import movieData from "../datasets/movie-data.json"
 import kickstarterData from "../datasets/kickstarter-funding-data.json"
@@ -77,7 +77,8 @@ function TreeMap() {
       .data(root.leaves())
       .join("g")
       .attr("transform", (d) => `translate(${d.x0},${d.y0})`)
-      .on("mouseenter", (value, index) => {
+      .on("mousemove", (value, index) => {
+        const [x, y] = mouse(svgRef.current)
         wrapper
           .selectAll(".tooltip-tree")
           .data([value])
@@ -88,10 +89,10 @@ function TreeMap() {
               `<h5>${data.data.name}</h5><p>${data.data.category}</p><p>${data.data.value} $</p>`
           )
           .style("top", (d) => {
-            return d.y1 - width / 50 + "px"
+            return y - 100 + "px"
           })
           .style("left", (d) => {
-            return d.x1 - width / 50 + "px"
+            return x + 20 + "px"
           })
       })
       .on("mouseleave", () => wrapper.select(".tooltip-tree").remove())

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react"
-import { select, geoPath, scaleLinear, min, max, axisBottom } from "d3"
+import { select, geoPath, scaleLinear, min, max, axisBottom, mouse } from "d3"
 import { feature, mesh } from "topojson"
 import useResizeObserver from "../hooks/useResizeObserver"
 import { useScrollPosition } from "../hooks/useScrollPosition"
@@ -8,21 +8,10 @@ import education from "../datasets/education.json"
 
 function Choropleth({ data }) {
   const [width, setWidth] = useState(0)
-  const [wrapperPos, setWrapperPos] = useState({ x: 10, y: 0 })
   const svgRef = useRef()
   const wrapperRef = useRef()
 
   const dimensions = useResizeObserver(wrapperRef)
-  let wrapperPosition = useScrollPosition(
-    ({ currPos }) => {
-      setWrapperPos(currPos)
-    },
-    [window.scroll],
-    wrapperRef,
-    undefined,
-    500,
-    true
-  )
 
   const usCounties = feature(countiesData, countiesData.objects.counties)
   const usStates = mesh(
@@ -95,7 +84,8 @@ function Choropleth({ data }) {
         const target = education.filter((obj) => obj.fips === data.id) || 0
         return colorScale(target[0].bachelorsOrHigher)
       })
-      .on("mouseenter", function (value, index) {
+      .on("mouseenter", (value, index) => {
+        const [x, y] = mouse(svgRef.current)
         wrapper
           .selectAll(".tooltip-choro")
           .data([value])
@@ -105,8 +95,8 @@ function Choropleth({ data }) {
             const target = education.filter((obj) => obj.fips === data.id) || 0
             return `<p>${target[0].area_name}, ${target[0].state}</p><p>${target[0].bachelorsOrHigher} %</p>`
           })
-          .style("top", `${window.event.clientY - wrapperPos.y - 60}px`)
-          .style("left", `${window.event.clientX - wrapperPos.x + 20}px`)
+          .style("top", `${y - 80}px`)
+          .style("left", `${x}px`)
       })
       .on("mouseleave", () => wrapper.select(".tooltip-choro").remove())
     //State lines
@@ -142,7 +132,7 @@ function Choropleth({ data }) {
       .attr("height", legendHeight)
       .attr("width", 1)
       .attr("fill", (data, index) => legendColorScale(index))
-  }, [data, dimensions, wrapperPos])
+  }, [data, dimensions])
 
   return (
     <React.Fragment>
