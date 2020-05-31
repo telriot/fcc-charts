@@ -10,7 +10,6 @@ import {
 } from "d3"
 import useResizeObserver from "../hooks/useResizeObserver"
 import fedData from "../datasets/barChartData"
-import styles from "./BarChart.module.scss"
 
 function BarChart() {
   const svgRef = useRef()
@@ -98,7 +97,7 @@ function BarChart() {
           .join("div")
           .attr("class", "tooltip")
           .html(
-            `<p>${convertToQuarter(value[0])}</p><p>$ ${value[1]} Billion</p>`
+            `<h5>${convertToQuarter(value[0])}</h5><p>$ ${value[1]} Billion</p>`
           )
           .style("top", `${yScale(value[1]) - 100}px`)
           .style("left", `${xScale(index) + xScale.bandwidth() / 2}px`)
@@ -111,11 +110,12 @@ function BarChart() {
 
   return (
     <React.Fragment>
-      <div>
+      <div className="header">
         <h1>United States GDP</h1>
       </div>
+
       <div className="wrapper-bar" ref={wrapperRef}>
-        <svg className={styles.barChart} ref={svgRef}>
+        <svg className="chart-bar" ref={svgRef}>
           <g className="x-axis"></g>
           <g className="y-axis"></g>
         </svg>

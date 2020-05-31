@@ -10,6 +10,7 @@ function BoilerPlate({ data }) {
   useEffect(() => {
     const svg = select(svgRef.current)
     if (!dimensions) return
+    const { height, width } = dimensions
   }, [data, dimensions])
 
   return (

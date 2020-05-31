@@ -28,11 +28,12 @@ function HeatMap() {
     return new Intl.DateTimeFormat(undefined, options).format(time)
   }
 
-  const colors = ["#1688b6", "#cae6f1", "#ff8555", "#e6152e"]
+  const colors = ["#03045e", "#b8f2e6", "#d81159", "#4b1d3f"]
   useEffect(() => {
     const svg = select(svgRef.current)
     const wrapper = select(wrapperRef.current)
     if (!dimensions) return
+    const { width } = dimensions
     //SCALES
     const xScale = scaleBand()
       .domain(data.map((el) => getParsedTime(el.year)))
@@ -40,10 +41,14 @@ function HeatMap() {
     const yScale = scaleBand()
       .domain(months.map((el) => getParsedTime(el)))
       .range([dimensions.height, 0])
+    const tickFilteringRatio = (width) => (width > 700 ? 10 : 25)
+
     const xTickScale = scaleBand()
       .domain(
         data
-          .filter((el) => el.year % 10 === 0 && el.month === 1)
+          .filter(
+            (el) => el.year % tickFilteringRatio(width) === 0 && el.month === 1
+          )
           .map((el) => el.year)
       )
       .range([0, dimensions.width])
@@ -92,7 +97,7 @@ function HeatMap() {
       .data(data)
       .join("rect")
       .attr("class", "cell-heat")
-      .attr("x", (data) => `${xScale(getParsedTime(data.year))}px`)
+      .attr("x", (data) => `${xScale(getParsedTime(data.year)) + 1}px`)
       .attr("y", (data) => `${yScale(getParsedTime(data.month))}px`)
       .attr("width", xScale.bandwidth())
       .attr("height", yScale.bandwidth())
@@ -104,9 +109,9 @@ function HeatMap() {
           .join("div")
           .attr("class", "tooltip-heat")
           .html(
-            `<p>${value.year} - ${parseMonths(
+            `<h5>${value.year} - ${parseMonths(
               getParsedTime(value.month)
-            )}</p><p>${(value.variance + base).toFixed(3)}</p><p>Variance: ${
+            )}</h5><p>${(value.variance + base).toFixed(3)}</p><p>Variance: ${
               value.variance
             }</p>`
           )
@@ -139,8 +144,11 @@ function HeatMap() {
 
   return (
     <React.Fragment>
-      <h1>Monthly Global Land-Surface Temperature</h1>
-      <h2>1753 - 2015: base temperature 8.66℃</h2>
+      <div className="header">
+        <h1>Monthly Global Land-Surface Temperature</h1>
+        <h5>1753 - 5015: base temperature 8.66℃</h5>
+      </div>
+
       <div ref={wrapperRef} className="wrapper-heat">
         <svg ref={svgRef} className="chart-heat">
           <g className="x-axis"></g>

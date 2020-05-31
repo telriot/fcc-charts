@@ -16,7 +16,7 @@ function ScatterPlot() {
     const date = new Date(el.toString())
     return date
   }
-  const colorScheme = ["#0cf574ff", "#587291ff"]
+  const colorScheme = ["#f20089", "#29bf12"]
 
   const legendKeys = ["Riders with doping allegations", "No doping allegations"]
   useEffect(() => {
@@ -57,8 +57,9 @@ function ScatterPlot() {
       .data(data)
       .join("circle")
       .attr("class", "circle")
-      .attr("r", 9)
-
+      .attr("r", 12)
+      .attr("stroke", "#222")
+      .attr("stroke-width", 0.5)
       .attr("cx", (el) => xScale(getYears(el.Year)))
       .attr("cy", (el) => yScale(getSeconds(el.Seconds)))
       .style("fill", (el) => (el.Doping ? colorScheme[0] : colorScheme[1]))
@@ -69,11 +70,11 @@ function ScatterPlot() {
           .join("div")
           .attr("class", "tooltip-scatter")
           .html(
-            `<div><p>${value.Name}: ${value.Nationality}</p><p>Year: ${
+            `<h5>${value.Name}: ${value.Nationality}</h5><p>Year: ${
               value.Year
             }, Time: ${value.Time}</p>${
-              value.Doping ? "<br/><p>" + value.Doping + "</p>" : ""
-            }</div>`
+              value.Doping ? "<p>" + value.Doping + "</p>" : ""
+            }`
           )
           .style("top", `${yScale(getSeconds(value.Seconds)) - 110}px`)
           .style("left", `${xScale(getYears(value.Year)) + 5}px`)
@@ -111,7 +112,7 @@ function ScatterPlot() {
       .attr("y", (data, index) => dimensions.height / 4 + index * 25 + 14)
       .attr("width", 20)
       .attr("height", 20)
-      .attr("fill", "white")
+      .attr("fill", "#222")
       .style("font-size", "12px")
       .style("font-weight", "300")
       .attr("text-anchor", "end")
@@ -119,9 +120,12 @@ function ScatterPlot() {
 
   return (
     <React.Fragment>
-      <h1>Doping in Professional Bicycle Racing</h1>
-      <h2>35 Fastest times up Alpe d'Huez</h2>
-      <div className="wrapper" ref={wrapperRef}>
+      <div className="header">
+        <h1>Doping in Professional Bicycle Racing</h1>
+        <h5>35 Fastest times up Alpe d'Huez</h5>
+      </div>
+
+      <div className="wrapper-scatter" ref={wrapperRef}>
         <svg className="chart-scatter" ref={svgRef}>
           <g className="x-axis"></g>
           <g className="y-axis"></g>

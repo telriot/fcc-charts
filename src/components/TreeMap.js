@@ -10,6 +10,38 @@ const dataObj = {
   kickstarters: kickstarterData,
   games: data,
 }
+const datasets = [
+  { label: "Top Grossing Movies by Genre", value: "movies" },
+  { label: "Most funded Kickstarters by Category", value: "kickstarters" },
+  { label: "Most sold Video Games by Platform", value: "games" },
+]
+
+const colors = [
+  "#ff595eff",
+  "#ffca3aff",
+  "#8ac926ff",
+  "#1982c4ff",
+  "#d0f4de",
+  "#f3ca40",
+  "#e4c1f9",
+  "#ff69eb",
+  "#f15bb5ff",
+  "#5f0f40ff",
+  "#00bbf9ff",
+  "#00f5d4ff",
+  "#86bbbd",
+  "#fb8b24ff",
+  "#e36414ff",
+  "#dcb8cb",
+  "#c0c0c0",
+  "#d81159",
+  "#006ba6",
+  "#0ead69",
+  "#f4d35e",
+  "#d9dbbc",
+  "#86bbbd",
+  "#a6808c",
+]
 
 function TreeMap() {
   const svgRef = useRef()
@@ -17,12 +49,7 @@ function TreeMap() {
   const dimensions = useResizeObserver(wrapperRef)
   const [options, setOptions] = useState("movies")
   const [data, setData] = useState(movieData)
-  const datasets = [
-    { label: "Top Grossing Movies by Genre", value: "movies" },
-    { label: "Most funded Kickstarters by Category", value: "kickstarters" },
-    { label: "Most sold Video Games by Platform", value: "games" },
-  ]
-
+  const [mB, setMB] = useState("15rem")
   const handleSelect = (e) => {
     setOptions(e.target.value)
     setData(dataObj[e.target.value])
@@ -32,45 +59,25 @@ function TreeMap() {
     const wrapper = select(wrapperRef.current)
     if (!dimensions) return
     const { width, height } = dimensions
+    //Parse raw data
     const root = hierarchy(data).sum((d) => d.value)
     treemap().size([width, height]).padding(1)(root)
-
-    const colors = [
-      "#ff595eff",
-      "#ffca3aff",
-      "#8ac926ff",
-      "#1982c4ff",
-      "#d0f4de",
-      "#f3ca40",
-      "#e4c1f9",
-      "#ff69eb",
-      "#f15bb5ff",
-      "#5f0f40ff",
-      "#00bbf9ff",
-      "#00f5d4ff",
-      "#86bbbd",
-      "#fb8b24ff",
-      "#e36414ff",
-      "#dcb8cb",
-      "#c0c0c0",
-      "#d81159",
-      "#006ba6",
-      "#0ead69",
-      "#f4d35e",
-      "#d9dbbc",
-      "#86bbbd",
-      "#a6808c",
-    ]
 
     const legendKeys = data.children.map((children, index) => ({
       children,
       index,
     }))
 
+    //Define scales
     const colorScale = scaleOrdinal()
       .domain(data.children.map((child, index) => child.name))
       .range(colors)
+    const legendItemWidth = 130
+    const legendItemsPerRow = Math.floor(width / legendItemWidth)
+    const legendRows = Math.floor(legendKeys.length / legendItemsPerRow)
+    setMB(`${legendRows * 35 + 50}px`)
 
+    //Create items
     svg.selectAll("g").remove()
     const leaf = svg
       .selectAll("g")
@@ -133,10 +140,14 @@ function TreeMap() {
       .join("rect")
       .attr("class", "legend-dot-tree")
       .style("fill", (d) => colorScale(d.children.name))
-      .attr("x", (data, index) => 20 + (index % 3) * 130)
+      .attr(
+        "x",
+        (data, index) => 20 + (index % legendItemsPerRow) * legendItemWidth
+      )
       .attr(
         "y",
-        (data, index) => dimensions.height + 30 + Math.floor(index / 3) * 35
+        (data, index) =>
+          dimensions.height + 30 + Math.floor(index / legendItemsPerRow) * 35
       )
       .attr("width", 20)
       .attr("height", 20)
@@ -146,27 +157,36 @@ function TreeMap() {
       .join("text")
       .text((data, index) => data.children.name)
       .attr("class", "legend-text-tree")
-      .attr("x", (data, index) => 50 + (index % 3) * 130)
+      .attr(
+        "x",
+        (data, index) => 50 + (index % legendItemsPerRow) * legendItemWidth
+      )
       .attr(
         "y",
-        (data, index) => dimensions.height + 46 + Math.floor(index / 3) * 35
+        (data, index) =>
+          dimensions.height + 46 + Math.floor(index / legendItemsPerRow) * 35
       )
   }, [dimensions, data])
 
   return (
     <React.Fragment>
-      <h1>Treemap Charted Data</h1>
-      <select className="select-tree" onChange={handleSelect} value={options}>
-        {datasets.map((dataset) => (
-          <option key={dataset.label} value={dataset.value}>
-            {dataset.label}
-          </option>
-        ))}
-      </select>
+      <div className="header">
+        <h1>Treemap Charted Data</h1>
+        <select className="select-tree" onChange={handleSelect} value={options}>
+          {datasets.map((dataset) => (
+            <option key={dataset.label} value={dataset.value}>
+              {dataset.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div
         className="wrapper-tree"
         ref={wrapperRef}
-        style={{ marginBottom: "20rem" }}
+        style={{
+          marginBottom: mB,
+        }}
       >
         <svg className="chart-tree" ref={svgRef}>
           <g className="legend-tree"></g>

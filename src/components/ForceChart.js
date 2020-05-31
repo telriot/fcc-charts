@@ -8,12 +8,13 @@ import {
   mouse,
   drag,
   event,
+  zoom,
 } from "d3"
 import data from "../datasets/countries.json"
 
+//bulk import for the flag pngs
 var context = require.context("../img/separate", true, /\.(png)$/)
 var images = {}
-
 context.keys().forEach((filename) => {
   images[filename] = context(filename)
 })
@@ -30,14 +31,14 @@ function ForceChart() {
   useEffect(() => {
     const svg = select(svgRef.current)
     if (!dimensions) return
-
     const { width, height } = dimensions
 
     svg.attr("viewBox", [0, 0, width, height])
-
+    //parse data for use
     const links = data.links.map((d) => ({ ...d }))
     const nodes = data.nodes.map((d) => ({ ...d }))
 
+    //create forces
     const simulation = forceSimulation(nodes)
       .force(
         "link",
@@ -49,9 +50,8 @@ function ForceChart() {
           .strength(-10)
           .distanceMax(width / 5)
       )
-
       .force("center", forceCenter(width / 2, height / 2))
-
+    //handle drag
     const dragHasStarted = (d, simulation) => {
       if (!event.active) simulation.restart().alpha(0.7)
       d.fx = d.x
@@ -67,13 +67,13 @@ function ForceChart() {
       d.fx = null
       d.fy = null
     }
-
+    //create items
     const link = svg
       .selectAll(".link")
       .data(links)
       .join("line")
       .attr("class", "link")
-      .attr("stroke", "black")
+      .attr("stroke", "#ddd")
       .attr("fill", "none")
 
     const label = svg
@@ -98,12 +98,14 @@ function ForceChart() {
           .data([value])
           .join("g")
           .attr("class", "flag-tooltip")
+        //create transparent text element to get size for the bg
         tooltip
           .append("text")
           .text((d) => d.country)
           .style("font-size", "16px")
           .attr("fill", "transparent")
           .call(getBB)
+        //bg
         tooltip
           .append("rect")
           .attr("class", "flag-text-bg")
@@ -117,6 +119,7 @@ function ForceChart() {
           .attr("y", y - 39)
           .attr("fill", "#222")
           .attr("opacity", 0.8)
+        //actual text
         tooltip
           .append("text")
           .attr("class", "flag-text")
@@ -127,22 +130,35 @@ function ForceChart() {
           .attr("y", y - 20)
       })
       .on("mouseleave", () => svg.select(".flag-tooltip").remove())
-
+    //determine changes when forces are active
     simulation.on("tick", () => {
       link
         .attr("x1", (link) => nodes[link.source].x)
         .attr("y1", (link) => nodes[link.source].y)
         .attr("x2", (link) => nodes[link.target].x)
         .attr("y2", (link) => nodes[link.target].y)
-
       label.attr("x", (node) => node.x - 20).attr("y", (node) => node.y - 20)
     })
+
+    const onZoom = zoom().scaleExtent([1, 8]).on("zoom", zoomed)
+    svg.call(onZoom)
+    function zoomed() {
+      const { transform } = event
+      label.attr("transform", transform)
+      link.attr("transform", transform)
+    }
   }, [data])
 
   return (
-    <div className="wrapper-force" ref={wrapperRef}>
-      <svg className="chart-force" ref={svgRef}></svg>
-    </div>
+    <React.Fragment>
+      <div className="header">
+        <h1>National Contiguity with a Force Directed Graph</h1>
+      </div>
+
+      <div className="wrapper-force" ref={wrapperRef}>
+        <svg className="chart-force" ref={svgRef}></svg>
+      </div>
+    </React.Fragment>
   )
 }
 

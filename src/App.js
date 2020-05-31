@@ -6,16 +6,18 @@ import HeatMap from "./components/HeatMap"
 import Choropleth from "./components/Choropleth"
 import TreeMap from "./components/TreeMap"
 import ForceChart from "./components/ForceChart"
+import Meteorites from "./components/Meteorites"
 
 function App() {
   return (
     <div className={styles.container}>
-      {/*<BarChart />
+      <BarChart />
       <ScatterPlot />
       <HeatMap />
       <Choropleth />
-      <TreeMap />*/}
+      <TreeMap />
       <ForceChart />
+      <Meteorites />
     </div>
   )
 }

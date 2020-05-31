@@ -23,9 +23,9 @@ function Choropleth({ data }) {
 
   const colors = [
     "rgb(220, 250, 220)",
-    "rgb(120, 250, 163)",
     "rgb(50, 150, 38)",
     "rgb(0, 50, 4)",
+    "rgb(0, 20, 4)",
   ]
 
   useEffect(() => {
@@ -38,8 +38,8 @@ function Choropleth({ data }) {
     //STYLE VARIABLES
     const legendWidth = parseInt(width / 3)
     const legendHeight = parseInt(30 * height) / 800
-    const scaleRatio = width / 1050
-    const translateXRatio = (80 * width) / 1050
+    const scaleRatio = width / 1075
+    const translateXRatio = (72 * width) / 1075
     //SCALES
     const colorScale = scaleLinear()
       .domain([
@@ -93,7 +93,7 @@ function Choropleth({ data }) {
           .attr("class", "tooltip-choro")
           .html((data) => {
             const target = education.filter((obj) => obj.fips === data.id) || 0
-            return `<p>${target[0].area_name}, ${target[0].state}</p><p>${target[0].bachelorsOrHigher} %</p>`
+            return `<h5>${target[0].area_name}, ${target[0].state}</h5><p>${target[0].bachelorsOrHigher} %</p>`
           })
           .style("top", `${y - 80}px`)
           .style("left", `${x}px`)
@@ -136,11 +136,14 @@ function Choropleth({ data }) {
 
   return (
     <React.Fragment>
-      <h1>United States Educational Attainment</h1>
-      <h5>
-        Percentage of adults age 25 and older with a bachelor's degree or higher
-        (2010-2014)
-      </h5>
+      <div className="header">
+        <h1>United States Educational Attainment</h1>
+        <h5>
+          Percentage of adults age 25 and older with a bachelor's degree or
+          higher (2010-2014)
+        </h5>
+      </div>
+
       <div
         className="wrapper-choro"
         style={{ height: `${width * 0.75}px` }}
