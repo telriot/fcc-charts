@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react"
+import React, { useRef, useEffect, useState } from "react"
 import {
   select,
   forceSimulation,
@@ -13,36 +13,59 @@ import {
 import data from "../datasets/countries.json"
 
 //bulk import for the flag pngs
-var context = require.context("../img/separate", true, /\.(png)$/)
-var images = {}
+let context = require.context("../img/separate", true, /\.(png)$/)
+let images = {}
 context.keys().forEach((filename) => {
   images[filename] = context(filename)
 })
 
 function ForceChart() {
-  const svgRef = useRef()
+  let svgRef = useRef()
   const wrapperRef = useRef()
   const dimensions = { width: window.innerWidth, height: window.innerHeight }
+  const [isRunning, setIsRunning] = useState(false)
   function getBB(selection) {
     selection.each(function (d) {
       d.bbox = this.getBBox()
     })
   }
+  const deepCopy = (inObject) => {
+    let outObject, value, key
+
+    if (typeof inObject !== "object" || inObject === null) {
+      return inObject // Return the value if inObject is not an object
+    }
+
+    // Create an array or object to hold the values
+    outObject = Array.isArray(inObject) ? [] : {}
+
+    for (key in inObject) {
+      value = inObject[key]
+
+      // Recursively (deep) copy for nested objects, including arrays
+      outObject[key] = deepCopy(value)
+    }
+
+    return outObject
+  }
+
   useEffect(() => {
-    const svg = select(svgRef.current)
+    console.log("effect")
     if (!dimensions) return
+    let svg = select(svgRef.current)
     const { width, height } = dimensions
 
     svg.attr("viewBox", [0, 0, width, height])
     //parse data for use
-    const links = data.links.map((d) => ({ ...d }))
-    const nodes = data.nodes.map((d) => ({ ...d }))
-
+    let dataCopy = deepCopy(data)
+    let links = dataCopy.links.map((d) => ({ ...d }))
+    let nodes = dataCopy.nodes.map((d) => ({ ...d }))
     //create forces
-    const simulation = forceSimulation(nodes)
+
+    let simulation = forceSimulation(nodes)
       .force(
         "link",
-        forceLink(data.links).id((d) => d.index)
+        forceLink(dataCopy.links).id((d) => d.index)
       )
       .force(
         "charge",
@@ -131,9 +154,10 @@ function ForceChart() {
       })
       .on("mouseleave", () => svg.select(".flag-tooltip").remove())
     //determine changes when forces are active
+
     simulation.on("tick", () => {
       link
-        .attr("x1", (link) => nodes[link.source].x)
+        .attr("x1", (link, index) => nodes[link.source].x)
         .attr("y1", (link) => nodes[link.source].y)
         .attr("x2", (link) => nodes[link.target].x)
         .attr("y2", (link) => nodes[link.target].y)
@@ -147,6 +171,7 @@ function ForceChart() {
       label.attr("transform", transform)
       link.attr("transform", transform)
     }
+    return () => {}
   }, [data])
 
   return (
