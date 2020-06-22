@@ -1,0 +1,91 @@
+@import "../styles/variables.scss";
+
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  height: 100vh;
+  min-width: 100vw;
+  background-image: url(../img/bglg.jpg);
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  @media (max-width: 52em) {
+    background-image: url(../img/bgmd.jpg);
+  }
+  @media (max-width: 36em) {
+    background-image: url(../img/bgsm.jpg);
+  }
+}
+.jumbotron {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 50vh;
+  width: 60vw;
+  min-width: 60%;
+  min-height: 400px;
+  background-color: rgba($color-bg, 0.95);
+  margin: 20vh 0;
+  padding: 3rem 2rem;
+  border-radius: 8px;
+  @media (max-width: 70em) {
+    min-width: 75%;
+  }
+  @media (max-width: 54em) {
+    min-width: 85%;
+    padding: 2rem 1.5rem;
+  }
+  @media (max-width: 36em) {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0px;
+  }
+}
+.header {
+  width: 80%;
+  margin-bottom: 1rem;
+  font-size: 6rem;
+  color: $color-black-0;
+
+  @media (max-width: 54em) {
+    width: 90%;
+    margin-bottom: 0;
+    font-size: 4.6rem;
+  }
+  @media (max-width: 36em) {
+    font-size: 4rem;
+  }
+}
+.sub {
+  width: 80%;
+  font-size: 2rem;
+  margin-bottom: 4rem;
+  color: $color-black-0;
+
+  @media (max-width: 54em) {
+    width: 90%;
+    font-size: 1.8rem;
+    margin-bottom: 2.5rem;
+  }
+}
+.image {
+  width: 70%;
+  align-self: center;
+
+  filter: contrast(0.5) saturate(2) brightness(0.85);
+  @media (max-width: 70em) {
+    min-width: 75%;
+  }
+  @media (max-width: 54em) {
+    min-width: 85%;
+  }
+  @media (max-width: 36em) {
+    width: 95%;
+  }
+}

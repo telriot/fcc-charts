@@ -10,7 +10,9 @@ function Navbar() {
   }
   return (
     <nav className={styles.navbar}>
-      <h1 className={styles.brand}>D3 Charts</h1>
+      <h1 className={styles.brand}>
+        <Link to="/"> D3 Charts</Link>
+      </h1>
 
       <ul className={styles.nav}>
         <li>
