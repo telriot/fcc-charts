@@ -31,26 +31,47 @@
 }
 
 .wrapper-bar {
+  width: 80%;
   @extend .wrapper;
   max-height: 75vh;
+  @media (max-width: 50em) {
+    max-height: 60vh;
+  }
+  @media (max-width: 30em) {
+    width: 100%;
+    transform: translateX(10px);
+  }
 }
 .wrapper-scatter {
   @extend .wrapper;
   max-height: 75vh;
 }
 .wrapper-heat {
+  width: 80%;
   @extend .wrapper;
   max-height: 65vh;
+  @media (max-width: 50em) {
+    max-height: 55vh;
+  }
+  @media (max-width: 30em) {
+    width: 90%;
+    transform: translateX(15px);
+  }
 }
 .wrapper-choro {
   @extend .wrapper;
   width: 60%;
-
+  @media (max-width: 95em) {
+    width: 70%;
+  }
+  @media (max-width: 80em) {
+    width: 80%;
+  }
   @media (max-width: 62em) {
     width: 90%;
   }
   @media (max-width: 50em) {
-    width: 100%;
+    width: 110%;
   }
 }
 .wrapper-tree {
@@ -73,6 +94,9 @@
   @media (max-width: 50em) {
     width: 100%;
   }
+  @media (max-width: 36em) {
+    width: 120%;
+  }
 }
 .wrapper-meteo {
   @extend .wrapper;
@@ -83,6 +107,11 @@
   }
   @media (max-width: 50em) {
     width: 100%;
+    max-height: 65vh;
+  }
+  @media (max-width: 36em) {
+    width: 115%;
+    max-height: 50vh;
   }
 }
 .chart {
@@ -196,6 +225,8 @@
 .select-tree {
   @extend .select;
   margin-bottom: 1rem;
+}
+.legend-heat {
 }
 .legend-text-tree {
   font-size: 12px;

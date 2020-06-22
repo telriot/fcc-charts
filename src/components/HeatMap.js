@@ -34,6 +34,7 @@ function HeatMap() {
     const wrapper = select(wrapperRef.current)
     if (!dimensions) return
     const { width } = dimensions
+    const isSM = dimensions.width < 500
     //SCALES
     const xScale = scaleBand()
       .domain(data.map((el) => getParsedTime(el.year)))
@@ -71,9 +72,9 @@ function HeatMap() {
         min(data, (data) => data.variance),
         max(data, (data) => data.variance),
       ])
-      .range([0, 300])
+      .range(isSM ? [0, 150] : [0, 300])
     const legendColorScale = scaleLinear()
-      .domain([0, 100, 200, 300])
+      .domain(isSM ? [0, 50, 100, 150] : [0, 100, 200, 300])
       .range(colors)
 
     //AXES
@@ -89,7 +90,10 @@ function HeatMap() {
     svg.select(".y-axis").call(yAxis)
     svg
       .select(".legend-heat")
-      .style("transform", `translate( 30px, ${dimensions.height + 100}px)`)
+      .style(
+        "transform",
+        `translate( ${isSM ? "0px" : "30px"}, ${dimensions.height + 100}px)`
+      )
       .call(legendAxis)
 
     svg
@@ -122,10 +126,10 @@ function HeatMap() {
 
     svg
       .selectAll(".color-heat")
-      .data(Array(300))
+      .data(isSM ? Array(150) : Array(300))
       .join("rect")
       .attr("class", "color-heat")
-      .attr("x", (data, index) => `${index + 30}px`)
+      .attr("x", (data, index) => (isSM ? `${index}px` : `${index + 30}px`))
       .attr("y", `${dimensions.height + 70}px`)
       .attr("height", 30)
       .attr("width", 1)
@@ -136,7 +140,7 @@ function HeatMap() {
       .join("text")
       .text((data) => data)
       .attr("class", "legend-text")
-      .attr("x", 110)
+      .attr("x", isSM ? 15 : 110)
       .attr("y", dimensions.height + 50)
       .style("font-weight", "300")
       .style("font-size", ".75rem")

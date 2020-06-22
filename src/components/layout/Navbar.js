@@ -1,17 +1,22 @@
-import React from "react"
+import React, { useState } from "react"
+import HamburgerMenu from "./HamburgerMenu"
 import styles from "./Navbar.module.scss"
 import { Link } from "react-router-dom"
+import HamburgerDropdown from "./HamburgerDropdown"
 function Navbar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const toggleHamburger = () => {
+    setIsOpen((prevState) => (prevState ? false : true))
+  }
   return (
     <nav className={styles.navbar}>
-      <h1 className={styles.brand}>Charts</h1>
+      <h1 className={styles.brand}>D3 Charts</h1>
+
       <ul className={styles.nav}>
         <li>
           <Link to="/bar">Bar</Link>
         </li>
-        <li>
-          <Link to="/scatter">Scatter</Link>
-        </li>
+
         <li>
           <Link to="/heat">Heat</Link>
         </li>
@@ -28,6 +33,8 @@ function Navbar() {
           <Link to="/meteorites">Choropleth 2</Link>
         </li>
       </ul>
+      <HamburgerMenu isOpen={isOpen} toggleHamburger={toggleHamburger} />
+      <HamburgerDropdown isOpen={isOpen} toggleHamburger={toggleHamburger} />
     </nav>
   )
 }

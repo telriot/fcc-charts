@@ -34,9 +34,13 @@ function BarChart() {
     const svg = select(svgRef.current)
     const wrapper = select(wrapperRef.current)
     if (!dimensions) return
-
+    const isSM = dimensions.width < 500
     const tickScale = scaleBand()
-      .domain(data.map((el) => el[0].slice(0, 4)).filter((el) => el % 5 === 0))
+      .domain(
+        data
+          .map((el) => el[0].slice(0, 4))
+          .filter((el) => (isSM ? el % 10 === 0 : el % 5 === 0))
+      )
       .range([0, dimensions.width])
 
     const xScale = scaleBand()
@@ -77,7 +81,7 @@ function BarChart() {
       .join("text")
       .text("More info at http://www.bea.gov/national/pdf/nipaguid.pdf")
       .attr("class", "info")
-      .attr("x", dimensions.width - 350)
+      .attr("x", isSM ? dimensions.width - 220 : dimensions.width - 350)
       .attr("y", dimensions.height + 40)
       .style("font-weight", "300")
       .style("font-size", ".75rem")

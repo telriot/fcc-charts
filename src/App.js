@@ -25,9 +25,7 @@ function App() {
         <Route exact path="/bar">
           <BarChart />
         </Route>
-        <Route exact path="/scatter">
-          <ScatterPlot />
-        </Route>
+
         <Route exact path="/heat">
           <HeatMap />
         </Route>
